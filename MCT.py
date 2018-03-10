@@ -1,4 +1,11 @@
-from TFE import *
+############################################
+# Project: MCT-TFE
+# File: MCT.py
+# By: ProgrammingIncluded
+# Website: ProgrammingIncluded.com
+############################################
+
+import TFE as tfe
 from MCTNode import *
 from mct_config import *
 
@@ -8,13 +15,22 @@ import math
 import time
 
 class MCT:
+    def __init__(self, board_width=0, NN=None):
+        if board_width == 0:
+            self.board_width = 4
+        else:
+            self.board_width = board_width
+        self.sim = tfe.TFE(board_width)
+        # Set the neural network for the q-value.
+        self.NN = NN
+
     # Greedy algorithm for faster approach
     # Select the direction with highest direct yield
     def greedy(self, tfe):
         res = tfe.availDir()
         scores = []
         dir_save = []
-        for k, v in res.iteritems():
+        for k, v in res.items():
             v = v.flatten("K")
             res = [0 if x==0 else math.log(x, 2) for x in v]
             scores.append(sum(res))
@@ -35,8 +51,8 @@ class MCT:
         GREEDY_CONTROL = GREEDY_CONTROL & ~GREEDY_INIT_ONLY 
 
         # Root node setting up.
-        root = Node(None, -1, tfe.grid)
-        # print "\nBRANCHES: " + str(root.children_options.size)
+        root = Node(None, self.sim, -1, tfe.grid, self.board_width, True)
+        # print("\nBRANCHES: " + str(root.children_options.size))
         
         t_end = time.time() + sec
         # Monte Carlo loop
@@ -52,8 +68,8 @@ class MCT:
                     break
 
             # Check if leaf is win or lose state. Propagate accordingly.
-            SIM.grid = cur_node.grid
-            if SIM.isWin():
+            self.sim.grid = cur_node.grid
+            if self.sim.isWin():
                 self.backPropagate(trav, 1)
             else:
                 self.backPropagate(trav, 0)
@@ -66,14 +82,14 @@ class MCT:
         # Check makesure we have all children
         # Otherwise not enough time for first level
         if root.children_options.size != 0:
-            print "NO TIME"
+            print("NO TIME")
             return None
 
         highest = self.getHighestUCB(root.children)
         opt = highest.option
-        z = int(opt) / (4 *  16)
-        opt -= z * 4 * 16
-        return DIR_VAL[opt % 4]
+        direc = opt
+
+        return DIR_VAL[direc]
 
     def forwardPropagate(self, root, trav, t_end, noNone = False):
         cur_node = root
@@ -85,7 +101,7 @@ class MCT:
         while time.time() <= t_end or (noNone):
 
             # Check win node.
-            if SIM.isWin():
+            if self.sim.isWin():
                 break
 
             # Try to create a child if possible, if not, two possibilities.
@@ -109,7 +125,7 @@ class MCT:
                 # otherwise, we have created a child
                 trav.append(res)
                 cur_node = res
-            SIM.grid = cur_node.grid
+            self.sim.grid = cur_node.grid
 
         # Save last node
         trav.append(cur_node)
