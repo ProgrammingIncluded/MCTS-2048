@@ -15,21 +15,6 @@ if len(sys.argv) >= 2:
 else:
     MONTE_CARLO_RUN = 0
 
-# Number of 0's minimum before starting non-greedy approach
-if len(sys.argv) >= 3:
-    GREEDY_THRESH = int(sys.argv[2])
-else:
-    GREEDY_THRESH = 16
-
-# Allow greedy algorithm for the first few squares.
-GREEDY_CONTROL = False
-GREEDY_INIT_ONLY = True
-
-# TODO: Value Heuristic
-VAL_H = True
-# Directions of corners to check, across.
-V_DIR = 2
-
 # Branch Weight
 LEAF_WIN_WEIGHT = 1000
 

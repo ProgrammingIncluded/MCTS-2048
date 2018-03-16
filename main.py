@@ -25,14 +25,14 @@ def main():
     print(tfe.grid)
     print("")
 
-    mct = MCT(board_width)
+    mct = MCT(MONTE_CARLO_RUN)
     while (not tfe.isWin()) and (not tfe.isLose()):
 
         start = time.clock() 
 
         print("*********************")
 
-        act = mct.run(tfe, MONTE_CARLO_RUN, True)
+        act = mct.run(tfe)
 
 
         print("AI SELECT ACTION: " + str(act))
